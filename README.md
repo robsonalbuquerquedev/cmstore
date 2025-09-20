@@ -1,37 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CMStore
 
-## Getting Started
+CMStore é um aplicativo de e-commerce desenvolvido com **Next.js**, permitindo que usuários naveguem pelos produtos, adicionem itens à lista de desejos e enviem pedidos diretamente via **WhatsApp**. Possui um carrossel interativo de produtos, controle de estoque e integração com **Firebase Realtime Database** para gerenciamento de dados.
 
-First, run the development server:
+## Funcionalidades
+
+- Exibição de produtos com imagem, descrição, preço e estoque.
+- Carrossel de produtos com progresso automático e setas de navegação.
+- Lista de desejos interativa que envia a seleção via WhatsApp.
+- Interface responsiva para desktop e dispositivos móveis.
+- Gerenciamento de produtos via painel de admin (adicionar/editar/remover).
+
+## Tecnologias
+
+- [Next.js](https://nextjs.org)
+- [React](https://reactjs.org)
+- [Firebase Realtime Database](https://firebase.google.com)
+- [Tailwind CSS](https://tailwindcss.com)
+- [React Icons](https://react-icons.github.io/react-icons)
+- [React Slick](https://react-slick.neostack.com/) para o carrossel
+
+## Como rodar localmente
+
+Clone o repositório e instale as dependências:
+
+```bash
+git clone https://github.com/robsonalbuquerquedev/cmstore.git
+cd cmstore
+npm install
+```
+Inicie o servidor de desenvolvimento:
 
 ```bash
 npm run dev
-# or
+# ou
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abra http://localhost:3000 no navegador.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Estrutura do projeto
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- app/ - componentes de página do Next.js
+- components/ - componentes reutilizáveis (cards, modais, botões)
+- lib/ - configuração do Firebase e utilitários
+- public/ - imagens e assets estáticos
 
-## Learn More
+## Contribuição 
 
-To learn more about Next.js, take a look at the following resources:
+Sinta-se à vontade para abrir issues e pull requests.
+Feedback e melhorias são sempre bem-vindos!
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Licença MIT
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# cmstore
+[MIT LINCENSE](LICENSE)
