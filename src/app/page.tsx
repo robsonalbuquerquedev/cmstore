@@ -7,6 +7,15 @@ import { db } from "@/lib/firebase";
 import { ref, onValue } from "firebase/database";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import Image from "next/image";
+
+interface Product {
+  id: string;
+  name: string;
+  description?: string;
+  price: number;
+  image?: string;
+}
 
 // 👉 Setas personalizadas
 function PrevArrow({ onClick }: { onClick?: () => void }) {
@@ -32,7 +41,7 @@ function NextArrow({ onClick }: { onClick?: () => void }) {
 }
 
 export default function Home() {
-  const [products, setProducts] = useState<any[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [progress, setProgress] = useState(0);
 
@@ -41,8 +50,8 @@ export default function Home() {
   useEffect(() => {
     const productsRef = ref(db, "products");
     onValue(productsRef, (snapshot) => {
-      const data = snapshot.val() || {};
-      const list = Object.keys(data).map((key) => ({ id: key, ...data[key] }));
+      const data: Record<string, Product> = snapshot.val() || {};
+      const list = Object.keys(data).map((key) => ({ ...data[key], id: key }));
       setProducts(list);
     });
   }, []);
@@ -126,10 +135,12 @@ export default function Home() {
                 {/* Imagem */}
                 <div className="h-48 w-full mb-4 bg-gray-100 flex items-center justify-center rounded-lg overflow-hidden">
                   {product.image ? (
-                    <img
-                      src={product.image}
+                    <Image
+                      src={product.image}                       // URL do i.ibb.co
                       alt={product.name}
-                      className="object-contain h-full w-full transition-transform duration-300 hover:scale-105"
+                      width={300}                                // largura desejada
+                      height={300}                               // altura desejada
+                      className="object-contain transition-transform duration-300 hover:scale-105"
                     />
                   ) : (
                     <span className="text-gray-400">Sem Imagem</span>

@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { FaLock, FaEnvelope } from "react-icons/fa";
 import { IoEyeOff, IoEye } from "react-icons/io5";
 import { useRouter } from "next/navigation";
 import { signInWithEmailAndPassword } from "firebase/auth";
@@ -24,6 +23,7 @@ export default function AdminLogin() {
         e.preventDefault();
         setLoading(true);
         setErrorMsg("");
+
         try {
             const result = await signInWithEmailAndPassword(auth, email, senha);
 
@@ -36,13 +36,17 @@ export default function AdminLogin() {
 
             // Redireciona
             router.push("/");
-        } catch (error: any) {
-            setErrorMsg(error.message);
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                setErrorMsg(error.message);
+            } else {
+                setErrorMsg("Ocorreu um erro inesperado");
+            }
         } finally {
             setLoading(false);
         }
     };
-
+    
     return (
         <motion.div
             className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-100 to-blue-200"
