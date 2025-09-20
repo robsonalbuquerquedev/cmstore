@@ -6,9 +6,25 @@ import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { db } from "@/lib/firebase";
 import { ref, push, set, onValue, remove, update } from "firebase/database";
+import Image from "next/image";
+
+interface Product {
+    id: string; // sem ? — sempre precisa existir
+    name: string;
+    description?: string;
+    price: number;
+    stock?: number;
+    image?: string;
+}
+
+interface ProductModalProps {
+    product?: Product;
+    onClose: () => void;
+    onSave: (product: Product) => void;
+}
 
 // Modal para adicionar/editar produtos
-function ProductModal({ product, onClose, onSave }: any) {
+function ProductModal({ product, onClose, onSave }: ProductModalProps) {
     const [name, setName] = useState(product?.name || "");
     const [description, setDescription] = useState(product?.description || "");
     const [price, setPrice] = useState(product?.price || 0);
@@ -16,7 +32,7 @@ function ProductModal({ product, onClose, onSave }: any) {
     const [image, setImage] = useState(product?.image || "");
 
     const handleSave = () => {
-        onSave({ ...product, name, description, price, stock, image });
+        onSave({ ...product, name, description, price, stock, image } as Product);
         onClose();
     };
 
@@ -117,9 +133,9 @@ function ProductModal({ product, onClose, onSave }: any) {
 
 export default function Produtos() {
     const { isAdmin } = useAuth();
-    const [products, setProducts] = useState<any[]>([]);
+    const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
-    const [modalProduct, setModalProduct] = useState<any>(undefined);
+    const [modalProduct, setModalProduct] = useState<Product | undefined>(undefined);
     const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
 
     const [currentPage, setCurrentPage] = useState(1);
@@ -136,13 +152,14 @@ export default function Produtos() {
         });
     }, []);
 
-    const addProduct = (product: any) => {
+    const addProduct = (product: Product) => {
         const productsRef = ref(db, "products");
         const newProductRef = push(productsRef);
         set(newProductRef, { ...product });
     };
 
-    const editProduct = (product: any) => {
+    const editProduct = (product: Product) => {
+        if (!product.id) return;
         const productRef = ref(db, `products/${product.id}`);
         update(productRef, { ...product });
     };
@@ -192,12 +209,18 @@ export default function Produtos() {
                     >
                         <div className="h-40 w-full mb-4 bg-gray-100 flex items-center justify-center rounded overflow-hidden">
                             {product.image ? (
-                                <img src={product.image} alt={product.name} className="object-contain h-full w-full" />
+                                <Image
+                                    src={product.image}
+                                    alt={product.name}
+                                    width={300}         // largura da imagem (px)
+                                    height={300}        // altura da imagem (px)
+                                    className="object-contain h-full w-full"
+                                />
                             ) : (
                                 <span className="text-gray-400">Sem Imagem</span>
                             )}
                         </div>
-
+                        
                         <h2 className="font-bold text-lg">{product.name}</h2>
                         <p className="text-sm mb-2 flex-grow">{product.description}</p>
                         <p className="font-semibold mb-1">R$ {product.price.toFixed(2)}</p>
@@ -208,7 +231,10 @@ export default function Produtos() {
                                 <button onClick={() => setModalProduct(product)} className="flex-1 bg-yellow-500 text-white py-1 rounded hover:bg-yellow-600 flex items-center justify-center gap-1">
                                     <FaEdit /> Editar
                                 </button>
-                                <button onClick={() => deleteProduct(product.id)} className="flex-1 bg-red-500 text-white py-1 rounded hover:bg-red-600 flex items-center justify-center gap-1">
+                                <button
+                                    onClick={() => product.id && deleteProduct(product.id)}
+                                    className="flex-1 bg-red-500 text-white py-1 rounded hover:bg-red-600 flex items-center justify-center gap-1"
+                                >
                                     <FaTrash /> Remover
                                 </button>
                             </div>
@@ -313,7 +339,15 @@ export default function Produtos() {
             {/* Botão flutuante de adicionar produto */}
             {isAdmin && (
                 <button
-                    onClick={() => setModalProduct({})}
+                    onClick={() =>
+                        setModalProduct({
+                            name: "",
+                            description: "",
+                            price: 0,
+                            stock: 0,
+                            image: ""
+                        } as Product) // você pode usar "as Product" ou criar um tipo NewProduct
+                    }
                     className="fixed bottom-8 right-8 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 flex items-center justify-center text-xl"
                     title="Adicionar Produto"
                 >
@@ -326,7 +360,7 @@ export default function Produtos() {
                 <ProductModal
                     product={modalProduct}
                     onClose={() => setModalProduct(undefined)}
-                    onSave={(prod: any) => (prod.id ? editProduct(prod) : addProduct(prod))}
+                    onSave={(prod: Product) => (prod.id ? editProduct(prod) : addProduct(prod))}
                 />
             )}
         </div>
