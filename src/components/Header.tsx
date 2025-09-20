@@ -18,12 +18,18 @@ export default function Header() {
         try {
             await signOut(auth);
             alert("✅ Logout realizado com sucesso!");
-        } catch (error: any) {
-            console.error(error);
-            alert("❌ Erro ao sair: " + error.message);
+        } catch (error: unknown) {
+            // Se quisermos acessar a mensagem de erro, precisamos checar se é um Error
+            if (error instanceof Error) {
+                console.error(error);
+                alert("❌ Erro ao sair: " + error.message);
+            } else {
+                console.error(error);
+                alert("❌ Erro ao sair!");
+            }
         }
     };
-
+    
     const menuItems = ["Home", "Produtos", "Feedback"];
 
     return (
@@ -34,7 +40,7 @@ export default function Header() {
                     Colo de Mãe
                 </h1>
             </div>
-            
+
             {/* Menu + Logo */}
             <div className="container mx-auto flex justify-between items-center py-4 px-6 md:px-10  relative">
                 {/* Logo opcional */}
