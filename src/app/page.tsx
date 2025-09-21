@@ -94,7 +94,7 @@ export default function Home() {
     window.addEventListener("resize", handleOrientation);
     return () => window.removeEventListener("resize", handleOrientation);
   }, [hasRotated]);
-  
+
   const toggleSelect = (id: string) => {
     setSelectedProducts((prev) =>
       prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
@@ -147,14 +147,14 @@ export default function Home() {
         {showRotateOverlay && (
           <div className="absolute inset-0 bg-black/40 z-50 flex flex-col justify-center items-center text-white text-center px-4 animate-fadeIn">
             <p className="text-lg sm:text-2xl font-semibold mb-2">
-              🔄 Gire seu celular para a horizontal
+              🔄 Experiência recomendada: gire seu celular para horizontal
             </p>
             <p className="text-sm sm:text-base">
-              Para uma experiência completa ao visualizar nossos produtos.
+              Para visualizar melhor nossos produtos na primeira vez. Depois, você pode voltar para vertical normalmente.
             </p>
           </div>
         )}
-
+        
         {/* Barra de progresso */}
         <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden mb-4">
           <div
