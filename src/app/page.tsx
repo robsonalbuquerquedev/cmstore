@@ -69,6 +69,13 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
+  // 👉 Força o slick a recalcular quando o componente montar
+  useEffect(() => {
+    setTimeout(() => {
+      window.dispatchEvent(new Event("resize"));
+    }, 500);
+  }, []);
+
   const toggleSelect = (id: string) => {
     setSelectedProducts((prev) =>
       prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
@@ -163,14 +170,14 @@ export default function Home() {
                 <button
                   onClick={() => toggleSelect(product.id)}
                   className={`mt-auto flex items-center justify-center gap-2 px-3 py-2 sm:px-4 sm:py-2 rounded-lg transition w-full sm:w-auto text-sm sm:text-base ${selectedProducts.includes(product.id)
-                      ? "bg-red-100 text-red-600"
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    ? "bg-red-100 text-red-600"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                     }`}
                 >
                   <FaHeart
                     className={`text-lg sm:text-xl ${selectedProducts.includes(product.id)
-                        ? "text-red-500 animate-pulse"
-                        : "text-gray-400"
+                      ? "text-red-500 animate-pulse"
+                      : "text-gray-400"
                       }`}
                   />
                   {selectedProducts.includes(product.id) ? "Adicionado" : "Adicionar"}
