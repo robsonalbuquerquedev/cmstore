@@ -130,51 +130,50 @@ export default function Home() {
 
         <Slider {...settings}>
           {products.map((product) => (
-            <div key={product.id} className="px-3">
-              <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition transform hover:-translate-y-1 p-5 flex flex-col items-center h-full border border-gray-100">
+            <div key={product.id} className="px-2 sm:px-3">
+              <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition transform hover:-translate-y-1 p-3 sm:p-5 flex flex-col items-center h-full border border-gray-100">
+
                 {/* Imagem */}
-                <div className="h-48 w-full mb-4 bg-gray-100 flex items-center justify-center rounded-lg overflow-hidden">
+                <div className="h-32 sm:h-48 w-full mb-3 sm:mb-4 bg-gray-100 flex items-center justify-center rounded-lg overflow-hidden">
                   {product.image ? (
                     <Image
-                      src={product.image}                       // URL do i.ibb.co
+                      src={product.image}
                       alt={product.name}
-                      width={300}                                // largura desejada
-                      height={300}                               // altura desejada
+                      width={300}
+                      height={300}
                       className="object-contain transition-transform duration-300 hover:scale-105"
                     />
                   ) : (
-                    <span className="text-gray-400">Sem Imagem</span>
+                    <span className="text-gray-400 text-sm sm:text-base">Sem Imagem</span>
                   )}
                 </div>
 
                 {/* Texto */}
-                <h2 className="font-semibold text-lg text-center text-gray-800">
+                <h2 className="font-semibold text-base sm:text-lg text-center text-gray-800">
                   {product.name}
                 </h2>
-                <p className="text-sm text-gray-600 text-center mb-2">
+                <p className="text-xs sm:text-sm text-gray-600 text-center mb-1 sm:mb-2 line-clamp-2">
                   {product.description}
                 </p>
-                <p className="font-bold text-blue-700 mb-3 text-lg">
+                <p className="font-bold text-blue-700 mb-2 sm:mb-3 text-sm sm:text-lg">
                   R$ {product.price.toFixed(2)}
                 </p>
 
                 {/* Botão de seleção */}
                 <button
                   onClick={() => toggleSelect(product.id)}
-                  className={`mt-auto flex items-center gap-2 px-4 py-2 rounded-lg transition ${selectedProducts.includes(product.id)
-                    ? "bg-red-100 text-red-600"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  className={`mt-auto flex items-center justify-center gap-2 px-3 py-2 sm:px-4 sm:py-2 rounded-lg transition w-full sm:w-auto text-sm sm:text-base ${selectedProducts.includes(product.id)
+                      ? "bg-red-100 text-red-600"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                     }`}
                 >
                   <FaHeart
-                    className={`text-xl ${selectedProducts.includes(product.id)
-                      ? "text-red-500 animate-pulse"
-                      : "text-gray-400"
+                    className={`text-lg sm:text-xl ${selectedProducts.includes(product.id)
+                        ? "text-red-500 animate-pulse"
+                        : "text-gray-400"
                       }`}
                   />
-                  {selectedProducts.includes(product.id)
-                    ? "Adicionado"
-                    : "Adicionar à Lista"}
+                  {selectedProducts.includes(product.id) ? "Adicionado" : "Adicionar"}
                 </button>
               </div>
             </div>
