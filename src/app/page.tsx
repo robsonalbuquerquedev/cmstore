@@ -71,16 +71,30 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
+  // estado para controlar overlay
+  const [showRotateOverlay, setShowRotateOverlay] = useState(false);
+  const [hasRotated, setHasRotated] = useState(false);
+
   // Detecta orientação
   useEffect(() => {
     const handleOrientation = () => {
-      setIsPortrait(window.innerHeight > window.innerWidth);
+      const isPortraitNow = window.innerHeight > window.innerWidth;
+
+      if (!hasRotated && isPortraitNow) {
+        setShowRotateOverlay(true); // mostra overlay
+      }
+
+      if (!isPortraitNow) {
+        setShowRotateOverlay(false); // oculta ao girar horizontal
+        setHasRotated(true);         // marca que girou
+      }
     };
+
     handleOrientation();
     window.addEventListener("resize", handleOrientation);
     return () => window.removeEventListener("resize", handleOrientation);
-  }, []);
-
+  }, [hasRotated]);
+  
   const toggleSelect = (id: string) => {
     setSelectedProducts((prev) =>
       prev.includes(id) ? prev.filter((p) => p !== id) : [...prev, id]
@@ -130,8 +144,7 @@ export default function Home() {
       </h1>
 
       <div className="relative w-full max-w-6xl">
-        {/* Overlay para orientação vertical */}
-        {isPortrait && (
+        {showRotateOverlay && (
           <div className="absolute inset-0 bg-black/40 z-50 flex flex-col justify-center items-center text-white text-center px-4 animate-fadeIn">
             <p className="text-lg sm:text-2xl font-semibold mb-2">
               🔄 Gire seu celular para a horizontal
