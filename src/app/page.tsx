@@ -17,7 +17,7 @@ interface Product {
   image?: string;
 }
 
-// 👉 Setas personalizadas
+// Setas personalizadas
 function PrevArrow({ onClick }: { onClick?: () => void }) {
   return (
     <button
@@ -44,9 +44,11 @@ export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
   const [progress, setProgress] = useState(0);
+  const [isPortrait, setIsPortrait] = useState(true);
 
-  const AUTOPLAY_SPEED = 3500; // mesmo valor do autoplay do slider
+  const AUTOPLAY_SPEED = 3500;
 
+  // Busca produtos
   useEffect(() => {
     const productsRef = ref(db, "products");
     onValue(productsRef, (snapshot) => {
@@ -56,7 +58,7 @@ export default function Home() {
     });
   }, []);
 
-  // 👉 Controle da barra de progresso
+  // Barra de progresso
   useEffect(() => {
     setProgress(0);
     const interval = setInterval(() => {
@@ -69,11 +71,14 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
-  // 👉 Força o slick a recalcular quando o componente montar
+  // Detecta orientação
   useEffect(() => {
-    setTimeout(() => {
-      window.dispatchEvent(new Event("resize"));
-    }, 500);
+    const handleOrientation = () => {
+      setIsPortrait(window.innerHeight > window.innerWidth);
+    };
+    handleOrientation();
+    window.addEventListener("resize", handleOrientation);
+    return () => window.removeEventListener("resize", handleOrientation);
   }, []);
 
   const toggleSelect = (id: string) => {
@@ -110,8 +115,8 @@ export default function Home() {
     prevArrow: <PrevArrow />,
     nextArrow: <NextArrow />,
     beforeChange: () => setProgress(0),
-    pauseOnHover: false,   // 🚀 não pausa ao passar o mouse
-    pauseOnFocus: false,   // 🚀 não pausa ao clicar no carrossel
+    pauseOnHover: false,
+    pauseOnFocus: false,
     responsive: [
       { breakpoint: 1024, settings: { slidesToShow: 2, centerPadding: "30px" } },
       { breakpoint: 640, settings: { slidesToShow: 1, centerPadding: "20px" } },
@@ -125,6 +130,18 @@ export default function Home() {
       </h1>
 
       <div className="relative w-full max-w-6xl">
+        {/* Overlay para orientação vertical */}
+        {isPortrait && (
+          <div className="absolute inset-0 bg-black/40 z-50 flex flex-col justify-center items-center text-white text-center px-4 animate-fadeIn">
+            <p className="text-lg sm:text-2xl font-semibold mb-2">
+              🔄 Gire seu celular para a horizontal
+            </p>
+            <p className="text-sm sm:text-base">
+              Para uma experiência completa ao visualizar nossos produtos.
+            </p>
+          </div>
+        )}
+
         {/* Barra de progresso */}
         <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden mb-4">
           <div
@@ -133,14 +150,11 @@ export default function Home() {
           />
         </div>
 
-
-
+        {/* Slider */}
         <Slider {...settings}>
           {products.map((product) => (
             <div key={product.id} className="px-2 sm:px-3">
               <div className="bg-white rounded-xl shadow-md hover:shadow-xl transition transform hover:-translate-y-1 p-3 sm:p-5 flex flex-col items-center h-full border border-gray-100">
-
-                {/* Imagem */}
                 <div className="h-32 sm:h-48 w-full mb-3 sm:mb-4 bg-gray-100 flex items-center justify-center rounded-lg overflow-hidden">
                   {product.image ? (
                     <Image
@@ -155,7 +169,6 @@ export default function Home() {
                   )}
                 </div>
 
-                {/* Texto */}
                 <h2 className="font-semibold text-base sm:text-lg text-center text-gray-800">
                   {product.name}
                 </h2>
@@ -166,7 +179,6 @@ export default function Home() {
                   R$ {product.price.toFixed(2)}
                 </p>
 
-                {/* Botão de seleção */}
                 <button
                   onClick={() => toggleSelect(product.id)}
                   className={`mt-auto flex items-center justify-center gap-2 px-3 py-2 sm:px-4 sm:py-2 rounded-lg transition w-full sm:w-auto text-sm sm:text-base ${selectedProducts.includes(product.id)
