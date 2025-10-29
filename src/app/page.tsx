@@ -38,15 +38,22 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 1 }}
         >
-          <h1 className="text-5xl sm:text-6xl font-extrabold text-blue-800 tracking-tight mb-4 drop-shadow-sm">
-            Bem-vindo à CMStore ✨
+          <h1 className="text-5xl sm:text-6xl font-extrabold tracking-tight mb-4 drop-shadow-sm">
+            <span style={{ color: "#004BAD" }}>Bem-vindo à{" "}</span>
+            <span className="inline-block">
+              <span style={{ color: "#004BAD" }}>C</span>
+              <span style={{ color: "#FEE05B" }}>M</span>
+              <span style={{ color: "#004BAD" }}>Store</span>
+            </span>{" "}
+            ✨
           </h1>
+
           <p className="text-lg sm:text-xl text-gray-700 leading-relaxed max-w-2xl mx-auto mb-10">
             Sinta-se nas nuvens enquanto descobre produtos incríveis, pensados
             com carinho para tornar seu dia mais leve e especial 💙
           </p>
         </motion.div>
-
+        
         {/* Botão CTA */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
