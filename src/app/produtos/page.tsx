@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { FaPlus, FaEdit, FaTrash, FaHeart } from "react-icons/fa";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { db } from "@/lib/firebase";
 import { ref, push, set, onValue, remove, update } from "firebase/database";
 import Image from "next/image";
 
 interface Product {
-    id: string; // sem ? — sempre precisa existir
+    id: string;
     name: string;
     description?: string;
     price: number;
@@ -23,7 +23,7 @@ interface ProductModalProps {
     onSave: (product: Product) => void;
 }
 
-// Modal para adicionar/editar produtos
+/* 🪄 Modal estilizado */
 function ProductModal({ product, onClose, onSave }: ProductModalProps) {
     const [name, setName] = useState(product?.name || "");
     const [description, setDescription] = useState(product?.description || "");
@@ -37,59 +37,84 @@ function ProductModal({ product, onClose, onSave }: ProductModalProps) {
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg transform transition-transform duration-300 scale-100">
-                <div className="px-6 py-5 border-b border-gray-200 flex justify-between items-center">
-                    <h2 className="text-2xl font-bold text-gray-800">
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex justify-center items-center z-50 p-4"
+        >
+            <motion.div
+                initial={{ scale: 0.9, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.9, y: 20 }}
+                transition={{ duration: 0.3 }}
+                className="bg-white/90 backdrop-blur-md rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden"
+            >
+                <div className="px-6 py-5 border-b border-blue-100 flex justify-between items-center bg-gradient-to-r from-blue-600 via-sky-500 to-blue-400 text-white">
+                    <h2 className="text-xl md:text-2xl font-bold">
                         {product?.id ? "Editar Produto" : "Adicionar Produto"}
                     </h2>
-                    <button onClick={onClose} className="text-gray-500 hover:text-gray-700 text-xl font-bold">&times;</button>
+                    <button
+                        onClick={onClose}
+                        className="text-white/90 hover:text-yellow-200 text-2xl font-bold"
+                    >
+                        &times;
+                    </button>
                 </div>
 
-                <div className="px-6 py-4 space-y-4">
+                <div className="px-6 py-6 space-y-5">
                     <div>
-                        <label className="block text-gray-700 font-semibold mb-1">Nome</label>
+                        <label className="block font-semibold text-gray-700 mb-2">
+                            Nome
+                        </label>
                         <input
                             type="text"
                             placeholder="Nome do produto"
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            className="w-full p-4 rounded-2xl border border-blue-200 bg-white/60 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                         />
                     </div>
 
                     <div>
-                        <label className="block text-gray-700 font-semibold mb-1">Descrição</label>
+                        <label className="block font-semibold text-gray-700 mb-2">
+                            Descrição
+                        </label>
                         <textarea
-                            placeholder="Descrição do produto"
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            placeholder="Breve descrição sobre o produto..."
+                            className="w-full p-4 rounded-2xl border border-blue-200 bg-white/60 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all resize-none"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
+                            rows={3}
                         />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-gray-700 font-semibold mb-1">Preço (R$)</label>
+                            <label className="block font-semibold text-gray-700 mb-2">
+                                Preço (R$)
+                            </label>
                             <input
                                 type="number"
                                 placeholder="0.00"
-                                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                className="w-full p-4 rounded-2xl border border-blue-200 bg-white/60 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
                                 value={price}
                                 onChange={(e) => setPrice(Number(e.target.value))}
                             />
                         </div>
 
                         <div>
-                            <label className="block text-gray-700 font-semibold mb-1">Estoque</label>
-                            <div className="flex items-center gap-2">
+                            <label className="block font-semibold text-gray-700 mb-2">
+                                Estoque
+                            </label>
+                            <div className="flex items-center gap-3">
                                 <button
                                     onClick={() => setStock(Math.max(stock - 1, 0))}
                                     className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition"
                                 >
                                     -
                                 </button>
-                                <span className="font-semibold">{stock}</span>
+                                <span className="font-semibold text-gray-800">{stock}</span>
                                 <button
                                     onClick={() => setStock(stock + 1)}
                                     className="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition"
@@ -101,43 +126,47 @@ function ProductModal({ product, onClose, onSave }: ProductModalProps) {
                     </div>
 
                     <div>
-                        <label className="block text-gray-700 font-semibold mb-1">URL da Imagem (opcional)</label>
+                        <label className="block font-semibold text-gray-700 mb-2">
+                            URL da Imagem (opcional)
+                        </label>
                         <input
                             type="text"
                             placeholder="https://..."
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            className="w-full p-4 rounded-2xl border border-blue-200 bg-white/60 focus:outline-none focus:ring-2 focus:ring-blue-400 transition-all"
                             value={image}
                             onChange={(e) => setImage(e.target.value)}
                         />
                     </div>
                 </div>
 
-                <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
+                <div className="px-6 py-4 border-t border-blue-100 flex justify-end gap-4 bg-blue-50">
                     <button
                         onClick={onClose}
-                        className="px-5 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 transition font-semibold"
+                        className="px-6 py-2 bg-gray-300 rounded-xl hover:bg-gray-400 transition font-semibold"
                     >
                         Cancelar
                     </button>
                     <button
                         onClick={handleSave}
-                        className="px-5 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
+                        className="px-6 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 shadow-md transition font-semibold"
                     >
                         Salvar
                     </button>
                 </div>
-            </div>
-        </div>
+            </motion.div>
+        </motion.div>
     );
 }
 
+/* 🌈 Página principal */
 export default function Produtos() {
     const { isAdmin } = useAuth();
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
-    const [modalProduct, setModalProduct] = useState<Product | undefined>(undefined);
+    const [modalProduct, setModalProduct] = useState<Product | undefined>(
+        undefined
+    );
     const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
-
     const [currentPage, setCurrentPage] = useState(1);
     const productsPerPage = 9;
 
@@ -145,7 +174,7 @@ export default function Produtos() {
         const productsRef = ref(db, "products");
         onValue(productsRef, (snapshot) => {
             const data = snapshot.val() || {};
-            const list = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+            const list = Object.keys(data).map((key) => ({ id: key, ...data[key] }));
             list.sort((a, b) => (a.id > b.id ? 1 : -1));
             setProducts(list);
             setLoading(false);
@@ -172,76 +201,113 @@ export default function Produtos() {
     };
 
     const toggleSelect = (id: string) => {
-        if (selectedProducts.includes(id)) {
-            setSelectedProducts(selectedProducts.filter(pid => pid !== id));
-        } else {
-            setSelectedProducts([...selectedProducts, id]);
-        }
+        setSelectedProducts((prev) =>
+            prev.includes(id) ? prev.filter((pid) => pid !== id) : [...prev, id]
+        );
     };
 
     const sendWish = () => {
-        if (selectedProducts.length === 0) return alert("Selecione ao menos um produto!");
-        const message = selectedProducts.map(id => {
-            const p = products.find(prod => prod.id === id);
-            return `- ${p?.name} (R$ ${p?.price.toFixed(2)})`;
-        }).join("\n");
-        window.open(`https://wa.me/5581971168633?text=${encodeURIComponent("Olá! Tenho interesse nos seguintes produtos:\n" + message)}`, "_blank");
+        if (selectedProducts.length === 0)
+            return alert("Selecione ao menos um produto!");
+        const message = selectedProducts
+            .map((id) => {
+                const p = products.find((prod) => prod.id === id);
+                return `- ${p?.name} (R$ ${p?.price.toFixed(2)})`;
+            })
+            .join("\n");
+        window.open(
+            `https://wa.me/5581971168633?text=${encodeURIComponent(
+                "Olá! Tenho interesse nos seguintes produtos:\n" + message
+            )}`,
+            "_blank"
+        );
         setSelectedProducts([]);
     };
 
-    if (loading) return <p className="p-8 text-center">Carregando produtos...</p>;
+    if (loading)
+        return (
+            <div className="min-h-screen flex justify-center items-center text-blue-700 text-lg">
+                Carregando produtos...
+            </div>
+        );
 
     const indexOfLastProduct = currentPage * productsPerPage;
-    const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-    const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
+    const currentProducts = products.slice(
+        indexOfLastProduct - productsPerPage,
+        indexOfLastProduct
+    );
     const totalPages = Math.ceil(products.length / productsPerPage);
 
     return (
-        <div className="min-h-screen flex flex-col justify-center items-center p-6 relative">
+        <main className="min-h-screen bg-gradient-to-b from-blue-100 via-sky-100 to-blue-200 px-6 py-16 flex flex-col items-center relative overflow-hidden">
+            {/* Bolhas decorativas */}
+            <div className="absolute top-10 left-10 w-24 h-24 bg-blue-300/30 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute bottom-20 right-20 w-32 h-32 bg-yellow-200/30 rounded-full blur-3xl animate-pulse"></div>
 
-            {/* Grid de produtos centralizado */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 justify-items-center">
-                {currentProducts.map(product => (
+            {/* Título */}
+            <motion.h1
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+                className="text-4xl md:text-5xl font-extrabold mb-10 tracking-tight text-center"
+                style={{ color: "#004BAD" }}
+            >
+                Nossos <span style={{ color: "#FEE05B" }}>Produtos</span> 🌤️
+            </motion.h1>
+
+            {/* Grid de Produtos */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 justify-items-center w-full max-w-6xl">
+                {currentProducts.map((product) => (
                     <motion.div
                         key={product.id}
-                        className="bg-white rounded-lg shadow hover:shadow-xl transition p-4 flex flex-col w-64"
-                        whileHover={{ scale: 1.05 }}
+                        whileHover={{ scale: 1.03 }}
+                        transition={{ duration: 0.3 }}
+                        className="bg-white/70 backdrop-blur-lg rounded-3xl shadow-xl hover:shadow-2xl p-6 w-72 flex flex-col items-center text-center border border-blue-100 transition-all"
                     >
-                        <div className="h-40 w-full mb-4 bg-gray-100 flex items-center justify-center rounded overflow-hidden">
+                        <div className="h-48 w-full mb-4 bg-white/40 flex items-center justify-center rounded-2xl overflow-hidden shadow-inner">
                             {product.image ? (
                                 <Image
                                     src={product.image}
                                     alt={product.name}
-                                    width={300}         // largura da imagem (px)
-                                    height={300}        // altura da imagem (px)
+                                    width={300}
+                                    height={300}
                                     className="object-contain h-full w-full"
                                 />
                             ) : (
                                 <span className="text-gray-400">Sem Imagem</span>
                             )}
                         </div>
-                        
-                        <h2 className="font-bold text-lg">{product.name}</h2>
-                        <p className="text-sm mb-2 flex-grow">{product.description}</p>
-                        <p className="font-semibold mb-1">R$ {product.price.toFixed(2)}</p>
-                        <p className="text-gray-500 mb-2">Estoque: {product.stock}</p>
+
+                        <h2 className="font-bold text-lg text-gray-800">{product.name}</h2>
+                        <p className="text-sm text-gray-600 mt-1 flex-grow">
+                            {product.description}
+                        </p>
+                        <p className="text-lg font-semibold text-blue-700 mt-3">
+                            R$ {product.price.toFixed(2)}
+                        </p>
+                        <p className="text-gray-500 text-sm">Estoque: {product.stock}</p>
 
                         {isAdmin ? (
-                            <div className="flex gap-2 mt-auto">
-                                <button onClick={() => setModalProduct(product)} className="flex-1 bg-yellow-500 text-white py-1 rounded hover:bg-yellow-600 flex items-center justify-center gap-1">
+                            <div className="flex gap-2 mt-4 w-full">
+                                <button
+                                    onClick={() => setModalProduct(product)}
+                                    className="flex-1 bg-yellow-500 text-white py-2 rounded-xl hover:bg-yellow-600 transition flex items-center justify-center gap-1 shadow"
+                                >
                                     <FaEdit /> Editar
                                 </button>
                                 <button
                                     onClick={() => product.id && deleteProduct(product.id)}
-                                    className="flex-1 bg-red-500 text-white py-1 rounded hover:bg-red-600 flex items-center justify-center gap-1"
+                                    className="flex-1 bg-red-500 text-white py-2 rounded-xl hover:bg-red-600 transition flex items-center justify-center gap-1 shadow"
                                 >
                                     <FaTrash /> Remover
                                 </button>
                             </div>
                         ) : (
                             <motion.label
-                                className="flex items-center gap-2 mt-auto cursor-pointer"
-                                animate={{ scale: selectedProducts.includes(product.id) ? [1, 1.3, 1] : 1 }}
+                                className="flex items-center gap-2 mt-4 cursor-pointer text-sm font-medium text-gray-700 hover:text-blue-700 transition"
+                                animate={{
+                                    scale: selectedProducts.includes(product.id) ? [1, 1.15, 1] : 1,
+                                }}
                                 transition={{ duration: 0.3 }}
                             >
                                 <input
@@ -251,118 +317,81 @@ export default function Produtos() {
                                     className="accent-blue-600"
                                 />
                                 Adicionar à Lista de Desejos
-                                <FaHeart className={`text-red-500 ${selectedProducts.includes(product.id) ? 'animate-pulse' : ''}`} />
+                                <FaHeart
+                                    className={`text-red-500 ${selectedProducts.includes(product.id)
+                                            ? "animate-pulse"
+                                            : "opacity-60"
+                                        }`}
+                                />
                             </motion.label>
                         )}
                     </motion.div>
                 ))}
             </div>
 
-            {/* Botão enviar lista de desejos */}
+            {/* Botão Lista de Desejos */}
             {!isAdmin && (
-                <button
+                <motion.button
                     onClick={sendWish}
-                    className="mt-6 px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 flex items-center justify-center gap-2"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.97 }}
+                    className="mt-10 px-8 py-4 bg-gradient-to-r from-blue-600 via-blue-500 to-sky-400 text-white text-lg font-semibold rounded-2xl shadow-xl flex items-center justify-center gap-3 hover:shadow-2xl transition-all"
                 >
-                    <FaHeart /> Enviar Lista de Desejos
-                </button>
+                    <FaHeart className="text-2xl text-yellow-200" />
+                    Enviar Lista de Desejos
+                </motion.button>
             )}
 
-            {/* Paginação estilo loja profissional */}
+            {/* Paginação */}
             {totalPages > 1 && (
-                <div className="flex justify-center items-center gap-2 mt-6 flex-wrap">
-
-                    {/* Botão Primeira */}
-                    <button
-                        onClick={() => setCurrentPage(1)}
-                        disabled={currentPage === 1}
-                        className="px-3 py-1 rounded-full bg-gray-200 hover:bg-gray-300 disabled:opacity-50 transition-colors"
-                    >
-                        &laquo; Primeiro
-                    </button>
-
-                    {/* Botão Anterior */}
-                    <button
-                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                        disabled={currentPage === 1}
-                        className="px-3 py-1 rounded-full bg-gray-200 hover:bg-gray-300 disabled:opacity-50 transition-colors"
-                    >
-                        &lsaquo; Anterior
-                    </button>
-
-                    {/* Botões de página com elipses */}
-                    {Array.from({ length: totalPages }, (_, i) => i + 1)
-                        .filter(page =>
-                            page === 1 ||
-                            page === totalPages ||
-                            Math.abs(page - currentPage) <= 1
-                        )
-                        .map((page, index, array) => {
-                            const prevPage = array[index - 1];
-                            const showEllipsis = prevPage && page - prevPage > 1;
-                            return (
-                                <span key={page} className="flex items-center">
-                                    {showEllipsis && <span className="px-2">...</span>}
-                                    <button
-                                        onClick={() => setCurrentPage(page)}
-                                        className={`px-4 py-2 rounded-full transition-colors font-semibold ${page === currentPage
-                                            ? "bg-blue-600 text-white shadow-lg"
-                                            : "bg-gray-200 hover:bg-gray-300"
-                                            }`}
-                                    >
-                                        {page}
-                                    </button>
-                                </span>
-                            );
-                        })}
-
-                    {/* Botão Próxima */}
-                    <button
-                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                        disabled={currentPage === totalPages}
-                        className="px-3 py-1 rounded-full bg-gray-200 hover:bg-gray-300 disabled:opacity-50 transition-colors"
-                    >
-                        Próxima &rsaquo;
-                    </button>
-
-                    {/* Botão Última */}
-                    <button
-                        onClick={() => setCurrentPage(totalPages)}
-                        disabled={currentPage === totalPages}
-                        className="px-3 py-1 rounded-full bg-gray-200 hover:bg-gray-300 disabled:opacity-50 transition-colors"
-                    >
-                        Última &raquo;
-                    </button>
+                <div className="flex justify-center items-center gap-2 mt-10 flex-wrap">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                        <button
+                            key={page}
+                            onClick={() => setCurrentPage(page)}
+                            className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${page === currentPage
+                                    ? "bg-blue-600 text-white shadow-lg"
+                                    : "bg-white/60 hover:bg-white text-blue-700 border border-blue-200"
+                                }`}
+                        >
+                            {page}
+                        </button>
+                    ))}
                 </div>
             )}
 
-            {/* Botão flutuante de adicionar produto */}
+            {/* Botão Flutuante */}
             {isAdmin && (
-                <button
+                <motion.button
                     onClick={() =>
                         setModalProduct({
                             name: "",
                             description: "",
                             price: 0,
                             stock: 0,
-                            image: ""
-                        } as Product) // você pode usar "as Product" ou criar um tipo NewProduct
+                            image: "",
+                        } as Product)
                     }
-                    className="fixed bottom-8 right-8 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 flex items-center justify-center text-xl"
+                    whileHover={{ scale: 1.1 }}
+                    className="fixed bottom-8 right-8 bg-gradient-to-r from-blue-600 via-sky-500 to-blue-400 text-white p-4 rounded-full shadow-2xl hover:shadow-blue-300 flex items-center justify-center text-xl"
                     title="Adicionar Produto"
                 >
                     <FaPlus />
-                </button>
+                </motion.button>
             )}
 
             {/* Modal */}
-            {modalProduct && (
-                <ProductModal
-                    product={modalProduct}
-                    onClose={() => setModalProduct(undefined)}
-                    onSave={(prod: Product) => (prod.id ? editProduct(prod) : addProduct(prod))}
-                />
-            )}
-        </div>
+            <AnimatePresence>
+                {modalProduct && (
+                    <ProductModal
+                        product={modalProduct}
+                        onClose={() => setModalProduct(undefined)}
+                        onSave={(prod: Product) =>
+                            prod.id ? editProduct(prod) : addProduct(prod)
+                        }
+                    />
+                )}
+            </AnimatePresence>
+        </main>
     );
 }
