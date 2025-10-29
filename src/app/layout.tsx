@@ -16,12 +16,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body className="flex flex-col min-h-screen bg-gradient-to-b from-sky-100 via-blue-50 to-sky-200">
+      <body className="flex flex-col min-h-screen bg-gradient-to-b from-sky-100 via-blue-50 to-sky-200 text-gray-800">
         <AuthProvider>
           <Header />
-          <main className="flex-grow pt-20">
+
+          {/* Espaço reservado para compensar o header fixo */}
+          <div className="h-24 md:h-28"></div>
+
+          <main className="flex-grow relative z-0">
             {children}
           </main>
+
           <Footer />
         </AuthProvider>
       </body>
