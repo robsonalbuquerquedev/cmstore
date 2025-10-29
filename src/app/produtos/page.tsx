@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FaPlus, FaEdit, FaTrash, FaHeart } from "react-icons/fa";
+import { FaPlus, FaEdit, FaTrash, FaHeart, FaSearch, FaTimes } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { db } from "@/lib/firebase";
@@ -162,10 +162,12 @@ function ProductModal({ product, onClose, onSave }: ProductModalProps) {
 export default function Produtos() {
     const { isAdmin } = useAuth();
     const [products, setProducts] = useState<Product[]>([]);
+    const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [minPrice, setMinPrice] = useState<number | "">("");
+    const [maxPrice, setMaxPrice] = useState<number | "">("");
     const [loading, setLoading] = useState(true);
-    const [modalProduct, setModalProduct] = useState<Product | undefined>(
-        undefined
-    );
+    const [modalProduct, setModalProduct] = useState<Product | undefined>();
     const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const productsPerPage = 9;
@@ -177,9 +179,32 @@ export default function Produtos() {
             const list = Object.keys(data).map((key) => ({ id: key, ...data[key] }));
             list.sort((a, b) => (a.id > b.id ? 1 : -1));
             setProducts(list);
+            setFilteredProducts(list);
             setLoading(false);
         });
     }, []);
+
+    /* 🔍 Lógica de filtro */
+    useEffect(() => {
+        let filtered = products.filter((p) =>
+            p.name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+
+        if (minPrice !== "")
+            filtered = filtered.filter((p) => p.price >= Number(minPrice));
+        if (maxPrice !== "")
+            filtered = filtered.filter((p) => p.price <= Number(maxPrice));
+
+        setFilteredProducts(filtered);
+        setCurrentPage(1);
+    }, [searchTerm, minPrice, maxPrice, products]);
+
+    const clearFilters = () => {
+        setSearchTerm("");
+        setMinPrice("");
+        setMaxPrice("");
+        setFilteredProducts(products);
+    };
 
     const addProduct = (product: Product) => {
         const productsRef = ref(db, "products");
@@ -232,11 +257,11 @@ export default function Produtos() {
         );
 
     const indexOfLastProduct = currentPage * productsPerPage;
-    const currentProducts = products.slice(
+    const currentProducts = filteredProducts.slice(
         indexOfLastProduct - productsPerPage,
         indexOfLastProduct
     );
-    const totalPages = Math.ceil(products.length / productsPerPage);
+    const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
 
     return (
         <main className="min-h-screen bg-gradient-to-b from-blue-100 via-sky-100 to-blue-200 px-6 py-16 flex flex-col items-center relative overflow-hidden">
@@ -244,16 +269,62 @@ export default function Produtos() {
             <div className="absolute top-10 left-10 w-24 h-24 bg-blue-300/30 rounded-full blur-3xl animate-pulse"></div>
             <div className="absolute bottom-20 right-20 w-32 h-32 bg-yellow-200/30 rounded-full blur-3xl animate-pulse"></div>
 
-            {/* Título */}
+            {/* 🔹 Título */}
             <motion.h1
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8 }}
-                className="text-4xl md:text-5xl font-extrabold mb-10 tracking-tight text-center"
+                className="text-4xl md:text-5xl font-extrabold mb-8 tracking-tight text-center"
                 style={{ color: "#004BAD" }}
             >
                 Nossos <span style={{ color: "#FEE05B" }}>Produtos</span> 🌤️
             </motion.h1>
+
+            {/* 🔹 Área de Filtros e Busca */}
+            <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="w-full max-w-5xl mb-12 bg-white/50 backdrop-blur-lg border border-blue-100 rounded-3xl shadow-lg p-6 flex flex-col md:flex-row items-center gap-6"
+            >
+                {/* Campo de busca */}
+                <div className="flex items-center w-full md:w-1/2 bg-white/70 rounded-2xl px-4 py-3 shadow-sm border border-blue-200">
+                    <FaSearch className="text-blue-600 mr-3" />
+                    <input
+                        type="text"
+                        placeholder="Buscar produto pelo nome..."
+                        className="flex-1 bg-transparent outline-none text-gray-700 placeholder-gray-500"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+
+                {/* Filtros de preço */}
+                <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
+                    <input
+                        type="number"
+                        placeholder="Preço mín."
+                        className="p-3 rounded-2xl border border-blue-200 bg-white/70 focus:ring-2 focus:ring-blue-400 outline-none text-gray-700 w-32"
+                        value={minPrice}
+                        onChange={(e) => setMinPrice(e.target.value ? Number(e.target.value) : "")}
+                    />
+                    <input
+                        type="number"
+                        placeholder="Preço máx."
+                        className="p-3 rounded-2xl border border-blue-200 bg-white/70 focus:ring-2 focus:ring-blue-400 outline-none text-gray-700 w-32"
+                        value={maxPrice}
+                        onChange={(e) => setMaxPrice(e.target.value ? Number(e.target.value) : "")}
+                    />
+                </div>
+
+                {/* Botão limpar filtros */}
+                <button
+                    onClick={clearFilters}
+                    className="flex items-center gap-2 text-blue-700 font-semibold hover:text-blue-900 transition"
+                >
+                    <FaTimes /> Limpar
+                </button>
+            </motion.div>
 
             {/* Grid de Produtos */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10 justify-items-center w-full max-w-6xl">
@@ -319,8 +390,8 @@ export default function Produtos() {
                                 Adicionar à Lista de Desejos
                                 <FaHeart
                                     className={`text-red-500 ${selectedProducts.includes(product.id)
-                                            ? "animate-pulse"
-                                            : "opacity-60"
+                                        ? "animate-pulse"
+                                        : "opacity-60"
                                         }`}
                                 />
                             </motion.label>
@@ -350,8 +421,8 @@ export default function Produtos() {
                             key={page}
                             onClick={() => setCurrentPage(page)}
                             className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${page === currentPage
-                                    ? "bg-blue-600 text-white shadow-lg"
-                                    : "bg-white/60 hover:bg-white text-blue-700 border border-blue-200"
+                                ? "bg-blue-600 text-white shadow-lg"
+                                : "bg-white/60 hover:bg-white text-blue-700 border border-blue-200"
                                 }`}
                         >
                             {page}
