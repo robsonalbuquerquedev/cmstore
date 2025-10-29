@@ -16,10 +16,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body className="flex flex-col min-h-screen">
+      <body className="flex flex-col min-h-screen bg-gradient-to-b from-sky-100 via-blue-50 to-sky-200">
         <AuthProvider>
           <Header />
-          <main className="flex-grow container mx-auto p-4">
+          <main className="flex-grow pt-20">
             {children}
           </main>
           <Footer />
