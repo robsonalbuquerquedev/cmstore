@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { FaWhatsapp } from "react-icons/fa";
+import { FaWhatsapp, FaUser, FaPhone, FaPaperPlane } from "react-icons/fa";
 
-export default function Feedback() {
+export default function FeedbackPage() {
     const [name, setName] = useState("");
     const [phone, setPhone] = useState("");
     const [message, setMessage] = useState("");
@@ -26,88 +26,101 @@ export default function Feedback() {
     };
 
     return (
-        <main className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-b from-blue-100 via-sky-100 to-blue-200 px-6 py-16">
+        <main className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-sky-100 via-blue-50 to-sky-200 px-6 py-24 text-center">
+            {/* 🔹 Cabeçalho */}
             <motion.div
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8 }}
-                className="w-full max-w-lg flex flex-col items-center text-center space-y-10"
+                transition={{ duration: 0.6 }}
+                className="mb-12"
             >
-                <h1
-                    className="text-4xl md:text-5xl font-extrabold tracking-tight"
-                    style={{ color: "#004BAD" }}
-                >
-                    Envie seu Feedback 💙
+                <h1 className="text-5xl font-extrabold mb-4">
+                    <span style={{ color: "#0253DB" }}>ENVIE</span>{" "}
+                    <span style={{ color: "#FBE062" }}>SEU</span>{" "}
+                    <span style={{ color: "#014DAF" }}>FEEDBACK</span>
                 </h1>
+                <p className="text-gray-700 text-lg max-w-2xl mx-auto">
+                    Sua opinião é muito importante para nós!
+                    Conte-nos como foi sua experiência e nos ajude a melhorar continuamente. 💙
+                </p>
+            </motion.div>
 
-                <form
-                    onSubmit={(e) => {
-                        e.preventDefault();
-                        sendFeedback();
-                    }}
-                    className="w-full flex flex-col gap-6 text-left"
-                >
-                    {/* Campo Nome */}
-                    <div className="flex flex-col">
-                        <label className="text-gray-700 font-semibold mb-2">
-                            Nome (opcional)
-                        </label>
+            {/* 🔹 Formulário sem fundo branco */}
+            <motion.form
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="w-full max-w-2xl text-left space-y-8"
+                onSubmit={(e) => {
+                    e.preventDefault();
+                    sendFeedback();
+                }}
+            >
+                {/* Nome */}
+                <div>
+                    <label className="block font-semibold text-[#004BAD] mb-2">
+                        Nome
+                    </label>
+                    <div className="flex items-center gap-2 bg-white/50 rounded-xl shadow-sm px-4 py-2 border border-blue-100 focus-within:ring-2 focus-within:ring-[#004BAD]/30">
+                        <FaUser className="text-[#004BAD]" />
                         <input
                             type="text"
-                            placeholder="Seu nome"
-                            className="w-full p-4 rounded-2xl border border-blue-200 bg-white/40 focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-500 text-gray-800 transition-all"
+                            placeholder="Seu nome completo"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
+                            className="w-full bg-transparent outline-none text-gray-700 placeholder-gray-400"
                         />
                     </div>
+                </div>
 
-                    {/* Campo Telefone */}
-                    <div className="flex flex-col">
-                        <label className="text-gray-700 font-semibold mb-2">
-                            Telefone / WhatsApp (opcional)
-                        </label>
+                {/* Telefone */}
+                <div>
+                    <label className="block font-semibold text-[#004BAD] mb-2">
+                        Telefone (opcional)
+                    </label>
+                    <div className="flex items-center gap-2 bg-white/50 rounded-xl shadow-sm px-4 py-2 border border-blue-100 focus-within:ring-2 focus-within:ring-[#004BAD]/30">
+                        <FaPhone className="text-[#004BAD]" />
                         <input
-                            type="text"
-                            placeholder="Digite seu telefone"
-                            className="w-full p-4 rounded-2xl border border-blue-200 bg-white/40 focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-500 text-gray-800 transition-all"
+                            type="tel"
+                            placeholder="(DDD) 99999-9999"
                             value={phone}
                             onChange={(e) => setPhone(e.target.value)}
+                            className="w-full bg-transparent outline-none text-gray-700 placeholder-gray-400"
                         />
                     </div>
+                </div>
 
-                    {/* Campo Mensagem */}
-                    <div className="flex flex-col">
-                        <label className="text-gray-700 font-semibold mb-2">
-                            Mensagem
-                        </label>
-                        <textarea
-                            placeholder="Conte-nos o que achou da sua experiência, deixe uma sugestão ou compartilhe como podemos melhorar 🌟"
-                            className="w-full p-4 rounded-2xl border border-blue-200 bg-white/40 focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-500 text-gray-800 transition-all resize-none"
-                            value={message}
-                            onChange={(e) => setMessage(e.target.value)}
-                            rows={5}
-                        />
-                    </div>
+                {/* Mensagem */}
+                <div>
+                    <label className="block font-semibold text-[#004BAD] mb-2">
+                        Mensagem
+                    </label>
+                    <textarea
+                        placeholder="Conte-nos o que achou da sua experiência, deixe uma sugestão ou compartilhe como podemos melhorar."
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        rows={6}
+                        className="w-full bg-white/50 rounded-xl shadow-sm border border-blue-100 px-4 py-3 outline-none text-gray-700 placeholder-gray-500 resize-none focus:ring-2 focus:ring-[#004BAD]/30"
+                    />
+                </div>
 
-                    {/* Botão Enviar */}
+                {/* Botão enviar */}
+                <div className="text-center pt-4">
                     <motion.button
                         type="submit"
                         whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.97 }}
-                        transition={{ type: "spring", stiffness: 300 }}
-                        className="w-full bg-gradient-to-r from-blue-600 via-blue-500 to-sky-400 text-white text-lg font-semibold py-4 rounded-2xl shadow-lg flex items-center justify-center gap-3 hover:shadow-2xl transition-all"
+                        whileTap={{ scale: 0.95 }}
+                        className="inline-flex items-center gap-3 bg-[#004BAD] hover:bg-[#003b8a] text-white px-8 py-3 rounded-full font-semibold shadow-lg transition"
                     >
-                        <FaWhatsapp className="text-2xl" />
-                        Enviar via WhatsApp
+                        <FaPaperPlane /> Enviar Feedback
                     </motion.button>
-                </form>
+                </div>
+            </motion.form>
 
-                <p className="text-gray-600 text-sm md:text-base leading-relaxed">
-                    Agradecemos por compartilhar sua opinião.
-                    Ela nos ajuda a criar uma experiência cada vez mais leve ☁️
-                </p>
-            </motion.div>
+            {/* Rodapé suave */}
+            <p className="text-sm text-gray-600 mt-12">
+                Agradecemos por dedicar um momento para compartilhar sua experiência 💛
+            </p>
         </main>
     );
 }
-    
