@@ -264,7 +264,7 @@ export default function Produtos() {
     const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
 
     return (
-        <main className="min-h-screen bg-gradient-to-b from-blue-100 via-sky-100 to-blue-200 px-6 py-16 flex flex-col items-center relative overflow-hidden">
+        <main className="min-h-screen bg-gradient-to-b from-sky-100 via-blue-50 to-sky-200 px-6 py-16 flex flex-col items-center relative overflow-hidden">
             {/* Bolhas decorativas */}
             <div className="absolute top-10 left-10 w-24 h-24 bg-blue-300/30 rounded-full blur-3xl animate-pulse"></div>
             <div className="absolute bottom-20 right-20 w-32 h-32 bg-yellow-200/30 rounded-full blur-3xl animate-pulse"></div>
